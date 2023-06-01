@@ -1,0 +1,23 @@
+{
+	"name": "Algobio",
+	"image": "mcr.microsoft.com/devcontainers/python:0-3.11",
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"python.analysis.typeCheckingMode": "basic"
+			},
+			"extensions": [
+				"streetsidesoftware.code-spell-checker",
+				"ms-python.python",
+				"GitHub.copilot",
+				"mechatroner.rainbow-csv",
+				"ms-toolsai.jupyter",
+				"VisualStudioExptTeam.vscodeintellicode",
+				"VisualStudioExptTeam.intellicode-api-usage-examples",
+				"ms-python.vscode-pylance",
+				"reageyao.biosyntax"
+			]
+		}
+	},
+	"postCreateCommand": "pip3 install -r requirements.txt"
+}
