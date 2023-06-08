@@ -12,6 +12,24 @@ def naive(text: str, pattern: str) -> bool:
             j += 1
         if j == m:
             return True
+ 
+    return False
+
+def naive2(text: str, pattern: str) -> bool:
+    """
+    Naive string search algorithm, searching from right to left
+    """
+    n = len(text)
+    m = len(pattern)
+
+    for i in range(n - m + 1):
+        j = m - 1
+
+        while j >= 0 and text[i + j] == pattern[j]:
+            j -= 1
+        if j == -1:
+            return True
+        
     return False
 
 if __name__ == "__main__":
@@ -23,4 +41,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    print("Naive", end="\t")
     print("Found") if naive(args.text, args.pattern) else print("Not found")
+
+    print("Naive2", end="\t")
+    print("Found") if naive2(args.text, args.pattern) else print("Not found")
