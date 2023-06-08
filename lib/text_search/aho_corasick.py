@@ -145,13 +145,16 @@ def aho_corasick_patterns(text: str, patterns: List[str], path: str | None = Non
 
     root.tree(path) if path is not None else root.tree()
 
-    node: Node | None = root
+    node: Node = root
 
     result: List[str] = []
 
     for letter in text:
         # Find first node with this letter, following fail links if necessary
-        while not node.children.get(letter, None):
+        while node.children.get(letter, None) is None and node is not root:
+            if node.fail is None:
+                raise Exception("Node has no fail link")
+
             node = node.fail
 
         # Investigate the corresponding child
