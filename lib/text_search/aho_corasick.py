@@ -1,32 +1,29 @@
 #!/usr/bin/env python3
 
+from dataclasses import dataclass, field
 from typing import List, Dict, Tuple
 import pydot
 
+@dataclass
 class Node:
-    def __init__(self, id: str = "root", parent: Tuple["Node", str] = None):
-        self.children: Dict[str, Node] = {}
-        self.fail: Node = None
-        self.leaf: bool = False
+    
+
+    
+    def __init__(self, id: str = "root", parent: Tuple["Node", str] | None = None):
         self.parent = parent
         self.id: str = id
 
-    def add_child(self, char, node):
-        self.children[char] = node
+        self.fail: "Node" | None = None
+        self.leaf: bool = False
+        self.children: Dict[str, "Node"] = {}
 
-    def get_child(self, term):
-        if len((term)) == 1:
-            return self.children.get(term)
-        else:
-            return self.children.get(term[0]).get_child(term[1:])
-
-    def get_max_depth(self):
+    def get_max_depth(self) -> int:
         if len(self.children) == 0:
             return 0
         else:
             return max([child.get_max_depth() for child in self.children.values()]) + 1
 
-    def get_children(self, depth=0):
+    def get_children(self, depth=0) -> List["Node"]:
         if depth <= 0:
             return [self]
         else:
@@ -34,18 +31,6 @@ class Node:
             for child in self.children.values():
                 result.extend(child.get_children(depth - 1))
             return result
-
-    def set_fail(self, node):
-        self.fail = node
-
-    def set_leaf(self):
-        self.leaf = True
-
-    def get_parent(self):
-        return self.parent[0]
-
-    def get_parent_char(self):
-        return self.parent[1]
 
     def get_level(self):
         if self.parent is None:
@@ -55,41 +40,46 @@ class Node:
 
     @staticmethod
     def build(patterns: List[str]) -> "Node":
-        root = Node()
+        root: Node = Node()
         for pattern in patterns:
-            node = root
+            node: Node = root
             for i in range(len(pattern)):
-                char = pattern[i]
-                parent = node
+                char: str = pattern[i]
+                parent: Node = node
 
-                if parent.get_child(char) is None:
-                    parent.add_child(char, Node(pattern[: i + 1], (parent, char)))
+                nodeOrNone: Node | None = parent.children.get(char, None)
 
-                node = parent.get_child(char)
+                if nodeOrNone is None:
+                    node = Node(pattern[: i + 1], (parent, char))
+                    parent.children[char] = node
+                else:
+                    node = nodeOrNone
 
-            node.set_leaf()
+            node.leaf = True
 
         # Add fail links
         max_depth = max([len(pattern) for pattern in patterns]) + 1
 
         for length in range(1, max_depth):
             for node in root.get_children(length):
-                parent = node.get_parent()
-                parent_char = node.get_parent_char()
+                if node.parent is None:
+                    raise Exception("Node has no parent")
+                
+                parent, parent_char = node.parent
 
                 w = parent.fail
 
-                while w not in [None, root] and w.get_child(parent_char) is None:
+                while w is not None and w is not root and w.children.get(parent_char, None) is None:
                     w = w.fail
 
-                if w is not None and w.get_child(parent_char) is not None:
-                    node.set_fail(w.get_child(parent_char))
+                if w is not None and w.children.get(parent_char, None) is not None:
+                    node.fail = w.children[parent_char]
                 else:
-                    node.set_fail(root)
+                    node.fail = root
 
         return root
 
-    def tree(self, path: str) -> None:
+    def tree(self, path: str = "tree.png") -> None:
         graph = pydot.Dot(graph_type="digraph")
 
         for depth in range(self.get_max_depth() + 1):
@@ -105,22 +95,22 @@ class Node:
 
         graph.write_png(path)
 
-def aho_corasick(text: str, patterns: List[str], path: str = None) -> bool:
+def aho_corasick(text: str, patterns: List[str], path: str | None = None) -> bool:
     root = Node.build(patterns)
 
-    if path is not None:
-        root.tree(path)
+    root.tree(path) if path is not None else root.tree()
 
-    result = []
-
-    node = root
+    node: Node | None = root
     i = 0
 
     while i < len(text):
-        while node.get_child(text[i + node.get_level()]):
-            node = node.get_child(text[i + node.get_level()])
+        while checked := node.children.get(text[i + node.get_level()]):
+            node = checked
             if node.leaf:
                 return True
+            
+        if node is None:
+            raise Exception("Node is None")
 
         if node is not root:
             i = i + node.get_level() - node.fail.get_level()
@@ -128,15 +118,15 @@ def aho_corasick(text: str, patterns: List[str], path: str = None) -> bool:
         else:
             i += 1
 
-    return result
+    return False
 
 
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Aho-Corasick algorithm")
-    parser.add_argument("--text", type=str, help="Text to search")
-    parser.add_argument("--patterns", type=str, nargs="+", help="Patterns to search for")
+    parser.add_argument("--text", default="aausau", type=str, help="Text to search")
+    parser.add_argument("--patterns", default=["aal", "aas", "aus", "sau"], type=str, nargs="+", help="Patterns to search for")
     parser.add_argument("--path", type=str, help="Path to save tree image")
 
     args = parser.parse_args()
