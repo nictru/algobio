@@ -106,13 +106,16 @@ class Node:
                 if node.fail is not None:
                     graph.add_edge(pydot.Edge(node.id, node.fail.id, style="dashed"))
 
+                if node.hit_link is not None and node is not node.hit_link:
+                    graph.add_edge(pydot.Edge(node.id, node.hit_link.id, style="dotted"))
+
 
                 for char, child in node.children.items():
                     graph.add_edge(pydot.Edge(node.id, child.id, label=char))
 
         graph.write_png(path)
 
-def aho_corasick(text: str, patterns: List[str], path: str | None = None) -> bool:
+def aho_corasick_binary(text: str, patterns: List[str], path: str | None = None) -> bool:
     root = Node.build(patterns)
 
     root.tree(path) if path is not None else root.tree()
@@ -137,6 +140,29 @@ def aho_corasick(text: str, patterns: List[str], path: str | None = None) -> boo
 
     return False
 
+def aho_corasick_patterns(text: str, patterns: List[str], path: str | None = None) -> List[str]:
+    root = Node.build(patterns)
+
+    root.tree(path) if path is not None else root.tree()
+
+    node: Node | None = root
+
+    result: List[str] = []
+
+    for letter in text:
+        # Find first node with this letter, following fail links if necessary
+        while not node.children.get(letter, None):
+            node = node.fail
+
+        # Investigate the corresponding child
+        node = node.children[letter]
+
+        if node.hit:
+            result.append(node.id)
+    
+
+    return result
+
 
 if __name__ == "__main__":
     import argparse
@@ -148,7 +174,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    if aho_corasick(args.text, args.patterns, args.path):
+    if aho_corasick_binary(args.text, args.patterns, args.path):
         print("Found")
     else:
         print("Not found")
+
+    print(aho_corasick_patterns(args.text, args.patterns, args.path))
