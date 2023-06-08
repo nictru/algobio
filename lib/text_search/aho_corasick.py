@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Dict, Tuple
 import pydot
 
 @dataclass
 class Node:
-    
-
-    
     def __init__(self, id: str = "root", parent: Tuple["Node", str] | None = None):
         self.parent = parent
         self.id: str = id
 
         self.fail: "Node" | None = None
         self.leaf: bool = False
+        self.hit: bool = False
+        self.hit_link: "Node" | None = None
         self.children: Dict[str, "Node"] = {}
 
     def get_max_depth(self) -> int:
@@ -56,26 +55,38 @@ class Node:
                     node = nodeOrNone
 
             node.leaf = True
+            node.hit = True
+            node.hit_link = node
 
         # Add fail links
-        max_depth = max([len(pattern) for pattern in patterns]) + 1
+        max_depth = max([len(pattern) for pattern in patterns])
 
         for length in range(1, max_depth):
             for node in root.get_children(length):
                 if node.parent is None:
                     raise Exception("Node has no parent")
                 
+                # Find out how this node can be reached
                 parent, parent_char = node.parent
 
+                # Find the highest-level node that is in a failure-linkage chain starting at the parent
+                # and has a child with the desired character
                 w = parent.fail
-
                 while w is not None and w is not root and w.children.get(parent_char, None) is None:
                     w = w.fail
 
+                # If such a node exists, set the failure link to the child of that node with the desired character
                 if w is not None and w.children.get(parent_char, None) is not None:
                     node.fail = w.children[parent_char]
+                
+                # Otherwise, set the failure link to the root
                 else:
                     node.fail = root
+
+                # Extension: This way, real partial words can be found as well
+                if node.fail.hit:
+                    node.hit = True
+                    node.hit_link = node.fail.hit_link
 
         return root
 
@@ -84,7 +95,13 @@ class Node:
 
         for depth in range(self.get_max_depth() + 1):
             for node in self.get_children(depth):
-                graph.add_node(pydot.Node(node.id, label=node.id))
+                if node.hit:
+                    if node.leaf:
+                        graph.add_node(pydot.Node(node.id, style="filled", fillcolor="green"))
+                    else:
+                        graph.add_node(pydot.Node(node.id, style="filled", fillcolor="red"))
+                else:
+                    graph.add_node(pydot.Node(node.id))
 
                 if node.fail is not None:
                     graph.add_edge(pydot.Edge(node.id, node.fail.id, style="dashed"))
@@ -106,13 +123,13 @@ def aho_corasick(text: str, patterns: List[str], path: str | None = None) -> boo
     while i < len(text):
         while checked := node.children.get(text[i + node.get_level()]):
             node = checked
-            if node.leaf:
+            if node.hit:
                 return True
             
         if node is None:
             raise Exception("Node is None")
 
-        if node is not root:
+        if node is not root and node.fail is not None:
             i = i + node.get_level() - node.fail.get_level()
             node = node.fail
         else:
@@ -125,8 +142,8 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Aho-Corasick algorithm")
-    parser.add_argument("--text", default="aausau", type=str, help="Text to search")
-    parser.add_argument("--patterns", default=["aal", "aas", "aus", "sau"], type=str, nargs="+", help="Patterns to search for")
+    parser.add_argument("--text", default="cbcabcbca", type=str, help="Text to search")
+    parser.add_argument("--patterns", default=["abcbca", "bcbcb", "c", "cbc", "cbcc"], type=str, nargs="+", help="Patterns to search for")
     parser.add_argument("--path", type=str, help="Path to save tree image")
 
     args = parser.parse_args()
