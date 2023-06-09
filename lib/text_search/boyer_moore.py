@@ -93,7 +93,7 @@ def compute_shift_table(pattern: str):
 
     return S
 
-def boyer_moore(text: str, pattern: str) -> bool:
+def boyer_moore_gs(text: str, pattern: str) -> bool:
     """
     Search for a pattern in a text using the Boyer-Moore algorithm.
     """
@@ -190,7 +190,5 @@ def boyer_moore_bc(text: str, pattern: str) -> bool:
     return False
 
 if __name__ == "__main__":
-    pattern = "ababbababa"
-    
     print("Found") if boyer_moore_bc("sdofjaababbababaaösldfkj", "ababbaba") else print("Not found")
 
