@@ -1,29 +1,48 @@
 #!/usr/bin/env python3
 
-def compute_border_lengths(word: str):
+from z_boxes import z_boxes
+from typing import Callable, List
+
+def compute_shift_table(word: str) -> list[int]:
     """
     Computes the border lengths of a word.
     """
 
-    border_lengths = [-1, 0]
+    S = [-1, 0]
 
     i = 0
 
     for j in range(1, len(word)):
         while i >= 0 and word[i] != word[j]:
-            i = border_lengths[i]
+            i = S[i]
         i += 1
-        border_lengths.append(i)
+        S.append(i)
 
+    return S
 
-    return border_lengths
+def compute_shift_table_z(word: str) -> list[int]:
+    m = len(word)
+    Z = z_boxes(word)
+    S = [1]
 
-def knuth_morris_pratt(text: str, word: str) -> bool:
+    for j in range(1, m):
+        S.append(j)
+    
+    sigma = m-1
+
+    while sigma > 0:
+        j = Z[sigma] + sigma
+        S[j] = min(S[j], sigma)
+        sigma -= 1
+    
+    return S
+
+def kmp_general(text: str, word: str, shift_table_method: Callable[[str], List[int]] = compute_shift_table) -> bool:
     """
     Knuth-Morris-Pratt string search algorithm.
     """
 
-    border_lengths = compute_border_lengths(word)
+    shift_table = shift_table_method(word)
     i = 0
     j = 0
 
@@ -32,10 +51,16 @@ def knuth_morris_pratt(text: str, word: str) -> bool:
             j += 1
             if (j >= len(word)):
                 return True
-        i = i+j-border_lengths[j]
-        j = max(0, border_lengths[j])
+        i = i+j-shift_table[j]
+        j = max(0, shift_table[j])
 
     return False
+
+def kmp(text: str, word: str) -> bool:
+    return kmp_general(text, word, compute_shift_table)
+
+def kmp_z(text: str, word: str) -> bool:
+    return kmp_general(text, word, compute_shift_table_z)
 
 if __name__ == "__main__":
     import argparse
@@ -46,4 +71,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print("Found") if knuth_morris_pratt(args.text, args.pattern) else print("Not found")
+    print("Found") if kmp(args.text, args.pattern) else print("Not found")
