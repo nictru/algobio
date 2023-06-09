@@ -1,18 +1,17 @@
 #!/usr/bin/env python3
 
 from dataclasses import dataclass
-from typing import List, Dict, Tuple
+from typing import List, Dict
 import pydot
-from helpers import get_suffixes
 
 @dataclass
 class Node:
-    TERMINAL = "$"
-
-    def __init__(self, id: str = "root", parent: Tuple["Node", str] | None = None):
-        self.parent = parent
+    def __init__(self, id: str = "root", parent = None):
+        self.parent: "Node" | None = parent
         self.id: str = id
 
+        self.terminal: bool = False
+        self.suffix_link: "Node" | None = None
         self.children: Dict[str, "Node"] = {}
 
     def get_max_depth(self) -> int:
@@ -34,36 +33,67 @@ class Node:
         if self.parent is None:
             return 0
         else:
-            return self.parent[0].get_level() + 1
+            return self.parent.get_level() + 1
+
+    def __hash__(self) -> int:
+        return hash(self.id)
 
     @staticmethod
     def build(pattern: str) -> "Node":
-        root: Node = Node()
-        for pattern in get_suffixes(pattern + Node.TERMINAL):
-            node: Node = root
-            for i in range(len(pattern)):
-                char: str = pattern[i]
-                parent: Node = node
+        alphabet = set(pattern)
 
-                nodeOrNone: Node | None = parent.children.get(char, None)
+        meta_root = Node(id="meta")
+        root = Node(parent=meta_root)
 
-                if nodeOrNone is None:
-                    node = Node(pattern[: i + 1], (parent, char))
-                    parent.children[char] = node
+        root.suffix_link = meta_root
+
+        for letter in alphabet:
+            meta_root.children[letter] = root
+
+        longest_suffix = root
+
+        n = len(pattern)
+
+        for i in range(n):
+            print("i:", i)
+            curr_node = longest_suffix
+            print("curr_node:", curr_node.id)
+            letter = pattern[i]
+            print("letter:", letter)
+
+            while not (letter in curr_node.children):
+                new_node = Node(id=curr_node.id + letter, parent=curr_node)
+                print("new_node:", new_node.id)
+                curr_node.children[letter] = new_node
+
+                if curr_node is longest_suffix:
+                    longest_suffix = new_node
                 else:
-                    node = nodeOrNone
+                    prev_node.suffix_link = new_node
+                
+                prev_node = new_node
+                assert curr_node.suffix_link is not None
+                curr_node = curr_node.suffix_link
+                
+            prev_node.suffix_link = curr_node.children[letter]
 
-        return root
+        return meta_root
 
     def tree(self, path: str = "tree.png") -> None:
         graph = pydot.Dot(graph_type="digraph")
 
         for depth in range(self.get_max_depth() + 1):
-            for node in self.get_children(depth):
-                graph.add_node(pydot.Node(node.id))
+            for node in set(self.get_children(depth)):
+                graph.add_node(pydot.Node(node.id, label=""))
 
-                for char, child in node.children.items():
-                    graph.add_edge(pydot.Edge(node.id, child.id, label=char))
+                if node.suffix_link is not None:
+                    graph.add_edge(pydot.Edge(node.id, node.suffix_link.id, style="dashed"))
+
+                for investigated in set(node.children.values()):
+                    letters = [letter for letter, child in node.children.items() if child is investigated]
+                    letters.sort()
+
+                    graph.add_edge(pydot.Edge(node.id, investigated.id, label=", ".join(letters)))
 
         graph.write_png(path)
 
