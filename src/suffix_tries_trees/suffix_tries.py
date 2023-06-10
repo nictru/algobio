@@ -6,6 +6,8 @@ import pydot
 
 @dataclass
 class Node:
+    TERMINAL = "$"
+
     def __init__(self, id: str = "root", parent = None):
         self.parent: "Node" | None = parent
         self.id: str = id
@@ -40,6 +42,11 @@ class Node:
 
     @staticmethod
     def build(pattern: str) -> "Node":
+        if Node.TERMINAL in pattern:
+            raise ValueError("Pattern cannot contain " + Node.TERMINAL + " symbol")
+
+        pattern += Node.TERMINAL
+
         alphabet = set(pattern)
 
         meta_root = Node(id="meta")
@@ -66,6 +73,12 @@ class Node:
                 print("new_node:", new_node.id)
                 curr_node.children[letter] = new_node
 
+                if letter == Node.TERMINAL:
+                    new_node.terminal = True
+
+                if i == n - 1:
+                    new_node.terminal = True
+
                 if curr_node is longest_suffix:
                     longest_suffix = new_node
                 else:
@@ -80,11 +93,14 @@ class Node:
         return meta_root
 
     def tree(self, path: str = "tree.png") -> None:
-        graph = pydot.Dot(graph_type="digraph")
+        graph = pydot.Dot(graph_type="digraph", size="30, 30")
 
         for depth in range(self.get_max_depth() + 1):
             for node in set(self.get_children(depth)):
-                graph.add_node(pydot.Node(node.id, label=""))
+                if node.terminal:
+                    graph.add_node(pydot.Node(node.id, label="", shape="doublecircle"))
+                else:
+                    graph.add_node(pydot.Node(node.id, label=""))
 
                 if node.suffix_link is not None:
                     graph.add_edge(pydot.Edge(node.id, node.suffix_link.id, style="dashed"))
