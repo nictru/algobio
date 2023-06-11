@@ -1,5 +1,7 @@
 # Algorithmic Bioinformatics
 
+This project aims on making the algorithms covered in the corresponding lecture at LMU Munich easier to understand by providing step-by-step logging and result visualization.
+
 ## Usage
 
 ### Docker
