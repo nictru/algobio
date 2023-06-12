@@ -103,7 +103,7 @@ class Tree:
         k = 2
 
         self.save("step_1.png")
-        for i in range(2, 6):
+        for i in range(2, n+1):
             s, k = self.update(s, Reference(k, i-1), i)
             self.save(f"step_{i}.png")
 
