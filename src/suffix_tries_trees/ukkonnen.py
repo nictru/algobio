@@ -68,6 +68,9 @@ class Node:
 class Reference:
     start: int
     end: int
+
+    def __str__(self) -> str:
+        return f"({self.start}, {self.end if self.end != MAX_INT else 'inf'})"
     
 class Tree:
     def log(self, message: str = "") -> None:
@@ -247,7 +250,7 @@ class Tree:
                 else:
                     label = edge
 
-                graph.add_edge(pydot.Edge(str(node.id), str(child.id), label=label))
+                graph.add_edge(pydot.Edge(str(node.id), str(child.id), label=str(edge)))
                 add_node(child)
 
         add_node(self.root)
