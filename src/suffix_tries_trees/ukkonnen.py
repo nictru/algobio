@@ -70,7 +70,7 @@ class Reference:
     end: int
 
     def __str__(self) -> str:
-        return f"({self.start}, {self.end if self.end != MAX_INT else 'inf'})"
+        return f"({self.start}, {self.end if self.end < MAX_INT else 'inf'})"
     
 class Tree:
     def log(self, message: str = "") -> None:
@@ -166,7 +166,7 @@ class Tree:
 
                 new_reference_2 = Reference(separator + 1, edge.end)
                 self.log(f"\tAdding edge {new_reference_2} to {r.to_string(self)}")
-                r.children[Reference(reference.end - reference.start + 2, edge.end)] = target
+                r.children[new_reference_2] = target
 
                 target.parent = r
 
@@ -245,11 +245,6 @@ class Tree:
             graph.add_node(pydot.Node(str(node.id), label=node.get_label(self)))
 
             for edge, child in node.children.items():
-                if isinstance(edge, Reference):
-                    label = self.resolve(edge)
-                else:
-                    label = edge
-
                 graph.add_edge(pydot.Edge(str(node.id), str(child.id), label=str(edge)))
                 add_node(child)
 
@@ -261,7 +256,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Suffix tree construction")
-    parser.add_argument("-w", "--word", default="ababbaa", type=str, help="Word to build suffix tree for")
+    parser.add_argument("-w", "--word", default="caccacaccc", type=str, help="Word to build suffix tree for")
     parser.add_argument("-v", "--verbose", action="store_true", help="Provide step-by-step output")
     parser.add_argument("-o", "--output", default="tree.png", type=str, help="Output file name")
     args = parser.parse_args()
