@@ -12,7 +12,7 @@ Don't worry about the "Codespace usage for this repository is paid by..." note -
 This repository provides a convenient way to use a VS Code development container. To get started, make sure you have the following installed:
 - [Docker](https://docs.docker.com/get-docker/)
 - [VS Code](https://code.visualstudio.com/download)
-- [VS Code Remote - Containers](vscode:extension/ms-vscode-remote.remote-containers)
+- The [Remote-Containers extension](vscode:extension/ms-vscode-remote.remote-containers) of VS Code
 
 Once you have these dependencies installed, you can open the repository in VS Code and click the green button in the bottom left corner. This action will launch the repository within a Docker container that includes all the necessary dependencies.
 
