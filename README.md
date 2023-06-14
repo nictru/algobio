@@ -6,6 +6,7 @@ This project aims on making the algorithms covered in the corresponding lecture 
 
 ### GitHub CodeSpaces
 You can run the scripts without installing anything on your computer by clicking at the green "Code" button in the top right corner, then on the tab "Codespaces" and then "Create Codespace on Main". 
+Don't worry about the "Codespace usage for this repository is paid by..." note - [nothing will be charged without explicit consent of users](https://docs.github.com/en/billing/managing-billing-for-github-codespaces/about-billing-for-github-codespaces#setting-a-spending-limit) and the storage and compute requirements of this repository will not exceed the limits of the free plan.
 
 ### Docker
 This repository provides a convenient way to use a VS Code development container. To get started, make sure you have the following installed:
