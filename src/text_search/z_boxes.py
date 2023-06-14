@@ -78,4 +78,4 @@ if __name__ == "__main__":
 
     verbose = args.verbose
 
-    print(z_boxes(args.pattern))
+    print(z_boxes(args.pattern, args.verbose))

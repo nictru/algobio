@@ -92,7 +92,7 @@ class Node:
 
         return meta_root
 
-    def tree(self, path: str = "tree.png") -> None:
+    def save(self, path: str = "tree.png") -> None:
         graph = pydot.Dot(graph_type="digraph", size="30, 30")
 
         for depth in range(self.get_max_depth() + 1):
@@ -114,6 +114,18 @@ class Node:
         graph.write_png(path)
 
 if __name__ == "__main__":
-    root = Node.build("abbaba")
+    import argparse
 
-    root.tree()
+    parser = argparse.ArgumentParser(description="Suffix trie builder")
+    parser.add_argument("-w", "--word", default="abbaba", type=str, help="Word to build suffix trie for")
+    parser.add_argument("-o", "--output", type=str, help="Output file name", default="tree.png")
+
+    args = parser.parse_args()
+
+    print(args.word)
+
+    root = Node.build(args.word)
+
+    root.save(args.output)
+
+    print("Output saved to", args.output)
