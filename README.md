@@ -4,6 +4,9 @@ This project aims on making the algorithms covered in the corresponding lecture 
 
 ## Usage
 
+### GitHub CodeSpaces
+You can run the scripts without installing anything on your computer by clicking at the green "Code" button in the top right corner, then on the tab "Codespaces" and then "Create new Codespace". 
+
 ### Docker
 This repository provides a convenient way to use a VS Code development container. To get started, make sure you have the following installed:
 - [Docker](https://docs.docker.com/get-docker/)
