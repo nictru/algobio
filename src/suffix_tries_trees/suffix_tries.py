@@ -92,7 +92,7 @@ class Node:
 
         return meta_root
 
-    def save(self, path: str = "tree.png") -> None:
+    def save(self, path: str = "trie.png") -> None:
         graph = pydot.Dot(graph_type="digraph", size="30, 30")
 
         for depth in range(self.get_max_depth() + 1):
@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Suffix trie builder")
     parser.add_argument("-w", "--word", default="abbaba", type=str, help="Word to build suffix trie for")
-    parser.add_argument("-o", "--output", type=str, help="Output file name", default="tree.png")
+    parser.add_argument("-o", "--output", type=str, help="Output file name", default="trie.png")
 
     args = parser.parse_args()
 
