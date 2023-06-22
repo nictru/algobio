@@ -36,6 +36,16 @@ class Node:
             return 0
         else:
             return self.parent.get_level() + 1
+        
+    def get_label(self) -> str:
+        if self.parent is None:
+            return "(virtual root)"
+        elif self.parent.parent is None:
+            return "(epsilon)"
+        else:
+            edges = [edge for edge in self.parent.children.keys() if self.parent.children[edge] == self]
+            parent_label = self.parent.get_label()
+            return (parent_label if parent_label != "(epsilon)" else "") + (edges[0] if len(edges) == 1 else f"({'|'.join(edges)})")
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -98,9 +108,9 @@ class Node:
         for depth in range(self.get_max_depth() + 1):
             for node in set(self.get_children(depth)):
                 if node.terminal:
-                    graph.add_node(pydot.Node(node.id, label="", shape="doublecircle"))
+                    graph.add_node(pydot.Node(node.id, label=node.get_label(), shape="doublecircle"))
                 else:
-                    graph.add_node(pydot.Node(node.id, label=""))
+                    graph.add_node(pydot.Node(node.id, label=node.get_label()))
 
                 if node.suffix_link is not None:
                     graph.add_edge(pydot.Edge(node.id, node.suffix_link.id, style="dashed"))
