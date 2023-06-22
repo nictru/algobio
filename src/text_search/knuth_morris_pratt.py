@@ -84,7 +84,7 @@ def kmp(text: str, word: str, z: bool = False, verbose: bool = False) -> bool:
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Aho-Corasick algorithm")
+    parser = argparse.ArgumentParser(description="Knuth-Morris-Pratt algorithm")
     parser.add_argument("--text", type=str, help="Text to search")
     parser.add_argument("--pattern", type=str, help="Pattern to search for")
     parser.add_argument("-z", action="store_true", help="Use Z-boxes algorithm")
