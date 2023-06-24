@@ -12,16 +12,16 @@ def __compute_shift_table__(word: str) -> list[int]:
     Computes the border lengths of a word.
     """
     m = len(word)
-    S = [-1, 0]
+    border = [-1, 0]
     i = 0
 
     for j in range(2, m+1):
         while i >= 0 and word[i] != word[j-1]:
-            i = S[i]
+            i = border[i]
         i += 1
-        S.append(i)
+        border.append(i)
 
-    return S
+    return border
 
 def __compute_shift_table_z__(word: str) -> list[int]:
     """
@@ -29,9 +29,9 @@ def __compute_shift_table_z__(word: str) -> list[int]:
     """
     m = len(word)
     Z = z_boxes(word)
-    S = [-1, 0] # Made a slight adjustment here, otherwise the algorithm ends up in an infinite loop
+    S = [1]
 
-    for j in range(2, m+1):
+    for j in range(1, m+1):
         S.append(j)
     
     sigma = m-1
@@ -40,8 +40,31 @@ def __compute_shift_table_z__(word: str) -> list[int]:
         j = Z[sigma] + sigma
         S[j] = min(S[j], sigma)
         sigma -= 1
+
+    border = [j-S[j] for j in range(m+1)]
     
-    return S
+    return border
+
+def __compute_shift_table_z_mathematical__(word: str) -> list[int]:
+    """
+    Computes the border lengths of a word using the Z-algorithm.
+    Instead of using the pseudo code, it relies on the mathematical definition found on page 149.
+    """
+    m = len(word)
+    Z = z_boxes(word)
+    S = []
+    
+    for j in range(m+1):
+        if j == 0:
+            S.append(1)
+            continue
+
+        min_sigma = min([j, *[sigma for sigma in range(1, m) if Z[sigma] + sigma == j]])
+        S.append(min_sigma)
+
+    border = [j-S[j] for j in range(m+1)]
+    
+    return border
 
 def __kmp_general__(text: str, pattern: str, shift_table_method: Callable[[str], List[int]] = __compute_shift_table__, verbose: bool = False) -> bool:
     """
