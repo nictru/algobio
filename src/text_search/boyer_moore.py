@@ -2,6 +2,7 @@
 
 from typing import List, Set
 from borders import actual_border
+from collections import defaultdict
 
 def log(msg: str, verbose: bool = False):
     if verbose:
@@ -16,7 +17,12 @@ def compute_bad_character_table(pattern: str, alphabet: Set[str] | None = None):
     if alphabet is None:
         alphabet = set(pattern)
 
-    return {letter: max([k for k in range(-1, m) if k == -1 or pattern[k] == letter]) for letter in alphabet}
+    bc = defaultdict(lambda: -1)
+
+    for letter in alphabet:
+        bc[letter] = max([k for k in range(-1, m) if k == -1 or pattern[k] == letter])
+
+    return bc
 
 def compute_extended_bad_character_table(pattern: str, alphabet: Set[str] | None = None):
     """
