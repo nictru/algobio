@@ -29,7 +29,7 @@ def __compute_shift_table_z__(word: str) -> list[int]:
     """
     m = len(word)
     Z = z_boxes(word)
-    S = [1] # Made a slight adjustment here, otherwise the algorithm ends up in an infinite loop
+    S = [1]
 
     for j in range(1, m+1):
         S.append(j)
