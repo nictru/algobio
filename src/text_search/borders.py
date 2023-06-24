@@ -5,7 +5,7 @@ def borders(word: str) -> List[str]:
     Calculates all borders of a word.
     """
 
-    borders = []
+    borders = [""]
 
     for i in range(len(word)):
         substring = word[:i + 1]

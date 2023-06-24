@@ -101,8 +101,11 @@ def __kmp_general__(text: str, pattern: str, shift_table_method: Callable[[str],
 
     return False
 
-def kmp(text: str, word: str, z: bool = False, verbose: bool = False) -> bool:
+def kmp_z(text: str, word: str, z: bool = False, verbose: bool = False) -> bool:
     return __kmp_general__(text, word, __compute_shift_table_z__ if z else __compute_shift_table__, verbose)
+
+def kmp(text: str, word: str, verbose: bool = False) -> bool:
+    return __kmp_general__(text, word, __compute_shift_table__, verbose)
 
 if __name__ == "__main__":
     import argparse
@@ -115,4 +118,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print("Found") if kmp(args.text, args.pattern, args.z, args.verbose) else print("Not found")
+    print("Found") if kmp_z(args.text, args.pattern, args.z, args.verbose) else print("Not found")
