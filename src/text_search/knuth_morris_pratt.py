@@ -12,16 +12,16 @@ def __compute_shift_table__(word: str) -> list[int]:
     Computes the border lengths of a word.
     """
     m = len(word)
-    S = [-1, 0]
+    border = [-1, 0]
     i = 0
 
     for j in range(2, m+1):
         while i >= 0 and word[i] != word[j-1]:
-            i = S[i]
+            i = border[i]
         i += 1
-        S.append(i)
+        border.append(i)
 
-    return S
+    return border
 
 def __compute_shift_table_z__(word: str) -> list[int]:
     """
