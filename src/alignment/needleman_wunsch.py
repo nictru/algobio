@@ -13,10 +13,10 @@ class NeedlemanWunsch:
         self.t = t
         self.w = w
 
-        self.D, self.B = self.__generate_matrix__(s, t, w)
+        self.D, self.B = self.__generate_matrix__(s, t)
 
 
-    def __generate_matrix__(self, s: str, t: str, w: Dict[str, Dict[str, int]]):
+    def __generate_matrix__(self, s: str, t: str):
         n = len(s)
         m = len(t)
 
@@ -25,20 +25,20 @@ class NeedlemanWunsch:
 
         # Initialize first row and column
         for i in range(1, n+1):
-            D[i, 0] =  D[i-1, 0] + w[s[i-1]]['-']
+            D[i, 0] =  D[i-1, 0] + self.w[s[i-1]]['-']
             B[i, 0] = self.UP
 
         for j in range(1, m+1):
-            D[0, j] = D[0, j-1] + w['-'][t[j-1]]
+            D[0, j] = D[0, j-1] + self.w['-'][t[j-1]]
             B[0, j] = self.LEFT
 
         # Fill the matrices
         for i in range(1, n+1):
             for j in range(1, m+1):
                 # Compute scores
-                up_score = D[i-1, j] + w[s[i-1]]['-']
-                left_score = D[i, j-1] + w['-'][t[j-1]]
-                diag_score = D[i-1, j-1] + w[s[i-1]][t[j-1]]
+                up_score = D[i-1, j] + self.w[s[i-1]]['-']
+                left_score = D[i, j-1] + self.w['-'][t[j-1]]
+                diag_score = D[i-1, j-1] + self.w[s[i-1]][t[j-1]]
 
                 # Choose the minimum
                 min_score = min(left_score, up_score, diag_score)
@@ -99,9 +99,9 @@ class NeedlemanWunsch:
         result = "Matrix:\n" + output.expandtabs(tabsize) + "\n" + "Alignment:\n" + s_aligned + "\n" + t_aligned
         return result
 
-    def __backtracking__(self):
-        n = self.B.shape[0] - 1
-        m = self.B.shape[1] - 1
+    def __backtracking__(self, B: np.ndarray, s: str, t: str):
+        n = B.shape[0] - 1
+        m = B.shape[1] - 1
 
         i = n
         j = m
@@ -110,17 +110,17 @@ class NeedlemanWunsch:
         t_aligned = ""
 
         while i > 0 or j > 0:
-            if self.B[i, j] == self.LEFT:
+            if B[i, j] == self.LEFT:
                 s_aligned = '-' + s_aligned
-                t_aligned = self.t[j-1] + t_aligned
+                t_aligned = t[j-1] + t_aligned
                 j -= 1
-            elif self.B[i, j] == self.UP:
-                s_aligned = self.s[i-1] + s_aligned
+            elif B[i, j] == self.UP:
+                s_aligned = s[i-1] + s_aligned
                 t_aligned = '-' + t_aligned
                 i -= 1
             else:
-                s_aligned = self.s[i-1] + s_aligned
-                t_aligned = self.t[j-1] + t_aligned
+                s_aligned = s[i-1] + s_aligned
+                t_aligned = t[j-1] + t_aligned
                 i -= 1
                 j -= 1
 
