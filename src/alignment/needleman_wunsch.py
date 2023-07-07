@@ -13,8 +13,15 @@ class NeedlemanWunsch:
         self.t = t
         self.w = w
 
-        self.D, self.B = self.__generate_matrix__(s, t)
+        self.alignment = self.__align__(s, t)
 
+    def __align__(self, s: str, t: str):
+        D, B = self.__generate_matrix__(s, t)
+
+        self.D = D
+        self.B = B
+
+        return self.__backtracking__(B, s, t)
 
     def __generate_matrix__(self, s: str, t: str):
         n = len(s)
@@ -94,7 +101,7 @@ class NeedlemanWunsch:
 
         tabsize = len(str(self.D.max())) + 1
 
-        s_aligned, t_aligned = self.__backtracking__()
+        s_aligned, t_aligned = self.__backtracking__(self.B, self.s, self.t)
 
         result = "Matrix:\n" + output.expandtabs(tabsize) + "\n" + "Alignment:\n" + s_aligned + "\n" + t_aligned
         return result
@@ -125,6 +132,7 @@ class NeedlemanWunsch:
                 j -= 1
 
         return s_aligned, t_aligned
+
 
 def build_weight_matrix(alphabet, match, indel, substitution):
     w = {
@@ -159,8 +167,7 @@ def main(description: str, usedClass):
     w = build_weight_matrix(alphabet, args.match, args.indel, args.substitution)
 
     nw = usedClass(s, t, w)
-    return nw
+    print(nw)
 
 if __name__ == "__main__":
-    nw = main("Needleman-Wunsch algorithm", NeedlemanWunsch)
-    print(nw)
+    main("Needleman-Wunsch algorithm", NeedlemanWunsch)
