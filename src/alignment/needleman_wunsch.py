@@ -108,7 +108,8 @@ class NeedlemanWunsch:
         result = "Matrix:\n" + output.expandtabs(tabsize) + "\n" + "Alignment:\n" + s_aligned + "\n" + t_aligned
         return result
 
-    def __backtracking__(self, B: np.ndarray, s: str, t: str):
+    @staticmethod
+    def __backtracking__(B: np.ndarray, s: str, t: str):
         n = B.shape[0] - 1
         m = B.shape[1] - 1
 
@@ -119,11 +120,11 @@ class NeedlemanWunsch:
         t_aligned = ""
 
         while i > 0 or j > 0:
-            if B[i, j] == self.Direction.LEFT:
+            if B[i, j] == NeedlemanWunsch.Direction.LEFT:
                 s_aligned = '-' + s_aligned
                 t_aligned = t[j-1] + t_aligned
                 j -= 1
-            elif B[i, j] == self.Direction.UP:
+            elif B[i, j] == NeedlemanWunsch.Direction.UP:
                 s_aligned = s[i-1] + s_aligned
                 t_aligned = '-' + t_aligned
                 i -= 1
