@@ -24,6 +24,7 @@ def main(description: str, usedClass):
     parser.add_argument('--substitution', type=int, default=3, help='Substitution score')
 
     parser.add_argument('--similarity', action='store_true', help='Compute similarity instead of distance')
+    parser.add_argument('--hirschberg', action='store_true', help='Use Hirschberg algorithm')
 
     args = parser.parse_args()
 
@@ -34,5 +35,5 @@ def main(description: str, usedClass):
 
     w = build_weight_matrix(alphabet, args.match, args.indel, args.substitution)
 
-    nw = usedClass(s, t, w, args.similarity)
+    nw = usedClass(s, t, w, args.similarity, args.hirschberg)
     print(nw)

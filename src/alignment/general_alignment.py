@@ -34,6 +34,9 @@ class Alignment:
         self.is_similarity = is_similarity
         self.hirschberg = hirschberg
 
+        if hirschberg and not type == Alignment.AlignmentType.GLOBAL:
+            raise ValueError("Hirschberg algorithm has only been implemented for global alignment")
+
         weights = [w[a][b] for a in w for b in w[a]]
         min_weight = min(weights)
 
@@ -48,7 +51,7 @@ class Alignment:
         self.D = D
         self.B = B
 
-        return self.__backtracking__(B, s, t)
+        return self.__backtracking__(D, B, s, t)
 
     def __align_hirschberg__(self, s: str, t: str):
         delim = len(s)//2
@@ -66,13 +69,13 @@ class Alignment:
         
         if len(s1) == 1:
             end_index = min_index+1
-            alignment1 = self.__backtracking__(B1[:,:end_index], s1, t1[:end_index])
+            alignment1 = self.__backtracking__(D1[:,:end_index], B1[:,:end_index], s1, t1[:end_index])
         else:
             alignment1 = self.__align__(s[:delim], t[:min_index])
 
         if len(s2) == 1:
             end_index = len(t2)-min_index+1
-            alignment2 = self.__backtracking__(B2[:,:end_index], s2, t2[:end_index])
+            alignment2 = self.__backtracking__(D2[:,:end_index], B2[:,:end_index], s2, t2[:end_index])
             alignment2 = alignment2[0][::-1], alignment2[1][::-1]
         else:
             alignment2 = self.__align__(s[delim:], t[min_index:])
@@ -87,6 +90,8 @@ class Alignment:
 
         D = np.zeros((n+1, m+1), dtype=int) # Distance matrix
         B = np.zeros((n+1, m+1), dtype=self.Direction) # Backtracking matrix
+
+        B[0, 0] = self.Direction.NONE
 
         # Initialize first row and column
         for i in range(1, n+1):
@@ -109,17 +114,18 @@ class Alignment:
 
                 best_score = comparator(up_score, left_score, diag_score)
 
-                D[i, j] = best_score
-
                 # Set the backtracking matrix
                 if best_score < 0 and self.type == self.AlignmentType.LOCAL:
+                    D[i, j] = 0
                     B[i, j] = self.Direction.NONE
-                elif best_score == left_score:
-                    B[i, j] = self.Direction.LEFT
-                elif best_score == diag_score:
-                    B[i, j] = self.Direction.DIAG
-                elif best_score == up_score:
-                    B[i, j] = self.Direction.UP
+                else:
+                    D[i, j] = best_score
+                    if best_score == left_score:
+                        B[i, j] = self.Direction.LEFT
+                    elif best_score == diag_score:
+                        B[i, j] = self.Direction.DIAG
+                    elif best_score == up_score:
+                        B[i, j] = self.Direction.UP
 
         return D, B
 
@@ -169,18 +175,22 @@ class Alignment:
         result += "Alignment:\n" + self.alignment[0] + "\n" + self.alignment[1] + "\n"
         return result
 
-    @staticmethod
-    def __backtracking__(B: np.ndarray, s: str, t: str):
-        n = B.shape[0] - 1
-        m = B.shape[1] - 1
+    def __backtracking__(self, D: np.ndarray, B: np.ndarray, s: str, t: str):
+        if self.type == self.AlignmentType.LOCAL:
+            i, j = np.unravel_index(D.argmax(), D.shape)
+        elif self.type == self.AlignmentType.GLOBAL:
+            i, j = D.shape[0]-1, D.shape[1]-1
+        else:
+            raise ValueError("Invalid alignment type")
 
-        i = n
-        j = m
+        print(i, j)
+        print(D)
+        print(D[i, j])
 
         s_aligned = ""
         t_aligned = ""
 
-        while i > 0 or j > 0:
+        while B[i, j] != Alignment.Direction.NONE and (self.type == self.AlignmentType.GLOBAL or D[i, j] > 0):
             if B[i, j] == Alignment.Direction.LEFT:
                 s_aligned = '-' + s_aligned
                 t_aligned = t[j-1] + t_aligned

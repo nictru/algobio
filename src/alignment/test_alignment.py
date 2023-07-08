@@ -29,3 +29,12 @@ def test_needleman():
     assert nw.D[-1, -1] == 9
 
     assert hashlib.sha256(str(nw).encode()).hexdigest() == "0c03e38e4d5d99d653b64ad7de4a9fd1e4cc5abbe4ffb01e16f52957ae473908"
+
+def test_smith_waterman():
+    matrix = build_weight_matrix("ACGT", 3, -2, -3)
+
+    sw = SmithWaterman("ACGATTATTT", "TAGTAATCG", matrix, True)
+    assert sw.alignment == ("ACGATTAT", "A-G-TAAT")
+
+    with pytest.raises(ValueError):
+        SmithWaterman("ACGATTATTT", "TAGTAATCG", matrix, True, True)
