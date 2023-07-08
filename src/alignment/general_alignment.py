@@ -3,6 +3,9 @@ from typing import Dict, Set
 from enum import Enum
 
 def build_weight_matrix(alphabet: str | Set[str], match: int, indel: int, substitution: int):
+    """
+    Builds a weight matrix for the given alphabet and weights.
+    """
     w = {
         a: {b: match if a == b else substitution for b in alphabet} for a in alphabet
     }
@@ -49,6 +52,9 @@ class Alignment:
         self.alignment = self.__align__(s, t) if not hirschberg else self.__align_hirschberg__(s, t)
 
     def __align__(self, s: str, t: str):
+        """
+        Performs the alignment by computing the full score and backtracking matrices.
+        """
         D, B = self.__generate_matrix__(s, t)
 
         self.D = D
@@ -57,6 +63,10 @@ class Alignment:
         return self.__backtracking__(D, B, s, t)
 
     def __align_hirschberg__(self, s: str, t: str):
+        """
+        Computes the alignment recursively using the Hirschberg algorithm.
+        Has only been tested for global alignment.
+        """
         delim = len(s)//2
 
         s1 = s[:delim]
@@ -88,6 +98,9 @@ class Alignment:
         return alignment
 
     def __generate_matrix__(self, s: str, t: str):
+        """
+        Generates the score and backtracking matrices for the given strings.
+        """
         n = len(s)
         m = len(t)
 
@@ -179,6 +192,9 @@ class Alignment:
         return result
 
     def __backtracking__(self, D: np.ndarray, B: np.ndarray, s: str, t: str):
+        """
+        Performs backtracking on the given matrices and returns the alignment.
+        """
         if self.type == self.AlignmentType.LOCAL:
             i, j = np.unravel_index(D.argmax(), D.shape)
         elif self.type == self.AlignmentType.GLOBAL:
