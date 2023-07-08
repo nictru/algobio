@@ -37,6 +37,9 @@ class Alignment:
         if hirschberg and not type == Alignment.AlignmentType.GLOBAL:
             raise ValueError("Hirschberg algorithm has only been implemented for global alignment")
 
+        if type == Alignment.AlignmentType.SEMI_GLOBAL:
+            raise UserWarning("Semi-global alignment has not been tested yet")
+
         weights = [w[a][b] for a in w for b in w[a]]
         min_weight = min(weights)
 

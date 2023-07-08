@@ -1,4 +1,4 @@
-from alignment_algorithms import NeedlemanWunsch, SmithWaterman, build_weight_matrix
+from alignment_algorithms import NeedlemanWunsch, SmithWaterman, SemiGlobal, build_weight_matrix
 import hashlib
 import pytest
 
@@ -38,3 +38,8 @@ def test_smith_waterman():
 
     with pytest.raises(ValueError):
         SmithWaterman("ACGATTATTT", "TAGTAATCG", matrix, True, True)
+
+def test_semi_global():
+    with pytest.raises(UserWarning):
+        matrix = build_weight_matrix("ACGT", 0, 2, 3)
+        SemiGlobal("ACGATTATTT", "TAGTAATCG", matrix, False)

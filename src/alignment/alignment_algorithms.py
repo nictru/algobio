@@ -35,5 +35,5 @@ def main(description: str, usedClass):
 
     w = build_weight_matrix(alphabet, args.match, args.indel, args.substitution)
 
-    nw = usedClass(s, t, w, args.similarity, args.hirschberg)
-    print(nw)
+    result = usedClass(s, t, w, args.similarity, args.hirschberg)
+    print(result)
