@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import numpy as np
 from typing import Dict, Set
 from enum import Enum
@@ -34,6 +32,7 @@ class Alignment:
         self.w = w
         self.type = type
         self.is_similarity = is_similarity
+        self.hirschberg = hirschberg
 
         weights = [w[a][b] for a in w for b in w[a]]
         min_weight = min(weights)
@@ -125,47 +124,49 @@ class Alignment:
         return D, B
 
     def __str__(self):
-        arrow_left = '\u2190'
-        arrow_up = '\u2191'
-        arrow_diag = '\u2196'
+        result = ""
 
-        n = len(self.s)
-        m = len(self.t)
+        if not self.hirschberg:
+            arrow_left = '\u2190'
+            arrow_up = '\u2191'
+            arrow_diag = '\u2196'
 
+            n = len(self.s)
+            m = len(self.t)
 
-        sep = "\t"
+            sep = "\t"
 
-        output = sep
+            output = sep
 
-        for j in range(m):
-            output += sep + self.t[j] + sep
-    
-        output += '\n'
-
-        for i in range(2*n + 1):
-            index_line = i // 2
-            if i % 2 == 0:
-                output += sep
-
-                for j in range(m+1):
-                    output += str(self.D[index_line, j]) + sep
-
-                    if j < m:
-                        output += (arrow_left if self.B[index_line, j+1] == self.Direction.LEFT else "") + sep
-            else:
-                output += self.s[index_line] + sep
-
-                for j in range(m+1):              
-                    output += (arrow_up if index_line < n and self.B[index_line+1, j] == self.Direction.UP else "") + sep
-                    output += (arrow_diag if index_line < n and j < m and self.B[index_line+1, j+1] == self.Direction.DIAG else "") + sep
-            
+            for j in range(m):
+                output += sep + self.t[j] + sep
+        
             output += '\n'
 
-        tabsize = len(str(self.D.max())) + 1
+            for i in range(2*n + 1):
+                index_line = i // 2
+                if i % 2 == 0:
+                    output += sep
 
-        s_aligned, t_aligned = self.__backtracking__(self.B, self.s, self.t)
+                    for j in range(m+1):
+                        output += str(self.D[index_line, j]) + sep
 
-        result = "Matrix:\n" + output.expandtabs(tabsize) + "\n" + "Alignment:\n" + s_aligned + "\n" + t_aligned
+                        if j < m:
+                            output += (arrow_left if self.B[index_line, j+1] == self.Direction.LEFT else "") + sep
+                else:
+                    output += self.s[index_line] + sep
+
+                    for j in range(m+1):              
+                        output += (arrow_up if index_line < n and self.B[index_line+1, j] == self.Direction.UP else "") + sep
+                        output += (arrow_diag if index_line < n and j < m and self.B[index_line+1, j+1] == self.Direction.DIAG else "") + sep
+                
+                output += '\n'
+
+            tabsize = len(str(self.D.max())) + 1
+
+            result += "Matrix:\n" + output.expandtabs(tabsize) + "\n"
+
+        result += "Alignment:\n" + self.alignment[0] + "\n" + self.alignment[1] + "\n"
         return result
 
     @staticmethod

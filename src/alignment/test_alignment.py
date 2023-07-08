@@ -1,4 +1,4 @@
-from alignment.general_alignment import NeedlemanWunsch, SmithWaterman, build_weight_matrix
+from alignment_algorithms import NeedlemanWunsch, SmithWaterman, build_weight_matrix
 import hashlib
 import pytest
 
@@ -28,4 +28,4 @@ def test_needleman():
 
     assert nw.D[-1, -1] == 9
 
-    assert hashlib.sha256(str(nw).encode()).hexdigest() == "a4ca5d4fa77311f4f48ee10261a0abd993511f1eb0eccdd884450e6318ebac7f"
+    assert hashlib.sha256(str(nw).encode()).hexdigest() == "0c03e38e4d5d99d653b64ad7de4a9fd1e4cc5abbe4ffb01e16f52957ae473908"
