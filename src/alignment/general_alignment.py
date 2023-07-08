@@ -183,10 +183,6 @@ class Alignment:
         else:
             raise ValueError("Invalid alignment type")
 
-        print(i, j)
-        print(D)
-        print(D[i, j])
-
         s_aligned = ""
         t_aligned = ""
 
