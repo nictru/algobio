@@ -7,7 +7,7 @@ def test_aligners():
     matrix = build_weight_matrix("ACGT", 0, 2, 3)
 
     cases = [
-       # ("ACG", "ACGT", ("ACG-", "ACGT")),
+        ("ACG", "ACGT", ("ACG-", "ACGT")),
         ("ACGT", "ACG", ("ACGT", "ACG-")),
         ("ACG", "ACG", ("ACG", "ACG")),
         ("ACGTG", "CCTATG", ("ACG-TG", "CCTATG")),

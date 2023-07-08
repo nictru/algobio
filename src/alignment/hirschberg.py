@@ -6,6 +6,8 @@ class Hirschberg(NeedlemanWunsch):
     def __align__(self, s: str, t: str):
         delim = len(s)//2
 
+        print(s, t)
+
         s1 = s[:delim]
         t1 = t
         D1, B1 = super().__generate_matrix__(s1, t1)
@@ -26,10 +28,13 @@ class Hirschberg(NeedlemanWunsch):
         if len(s2) == 1:
             end_index = len(t2)-min_index+1
             alignment2 = self.__backtracking__(B2[:,:end_index], s2, t2[:end_index])
+            alignment2 = alignment2[0][::-1], alignment2[1][::-1]
         else:
             alignment2 = self.__align__(s[delim:], t[min_index:])
 
         alignment = alignment1[0] + alignment2[0], alignment1[1] + alignment2[1]
+
+        print("Returning", alignment, "for", s, t, "resulting in", alignment1, alignment2)
 
         return alignment
     
