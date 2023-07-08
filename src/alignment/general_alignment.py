@@ -4,18 +4,44 @@ import numpy as np
 from typing import Dict, Set
 from enum import Enum
 
-class NeedlemanWunsch:
+def build_weight_matrix(alphabet: str | Set[str], match: int, indel: int, substitution: int):
+    w = {
+        a: {b: match if a == b else substitution for b in alphabet} for a in alphabet
+    }
+
+    w['-'] = {a: indel for a in alphabet}
+
+    for a in alphabet:
+        w[a]['-'] = indel
+
+    return w
+
+class Alignment:
     class Direction(Enum):
         LEFT = 5
         DIAG = 6
         UP = 7
+        NONE = 8
 
-    def __init__(self, s: str, t: str, w: Dict[str, Dict[str, int]]) -> None:
+    class AlignmentType(Enum):
+        GLOBAL = 0
+        SEMI_GLOBAL = 1
+        LOCAL = 2
+
+    def __init__(self, s: str, t: str, w: Dict[str, Dict[str, int]], type: AlignmentType, is_similarity: bool, hirschberg: bool = False) -> None:
         self.s = s
         self.t = t
         self.w = w
+        self.type = type
+        self.is_similarity = is_similarity
 
-        self.alignment = self.__align__(s, t)
+        weights = [w[a][b] for a in w for b in w[a]]
+        min_weight = min(weights)
+
+        if not is_similarity and min_weight < 0:
+            raise ValueError("Weight matrix must be non-negative for distance computation")
+
+        self.alignment = self.__align__(s, t) if not hirschberg else self.__align_hirschberg__(s, t)
 
     def __align__(self, s: str, t: str):
         D, B = self.__generate_matrix__(s, t)
@@ -24,6 +50,37 @@ class NeedlemanWunsch:
         self.B = B
 
         return self.__backtracking__(B, s, t)
+
+    def __align_hirschberg__(self, s: str, t: str):
+        delim = len(s)//2
+
+        s1 = s[:delim]
+        t1 = t
+        D1, B1 = self.__generate_matrix__(s1, t1)
+
+        s2 = s[delim:][::-1]
+        t2 = t[::-1]
+        D2, B2 = self.__generate_matrix__(s2, t2)
+
+        summarized = D1[-1] + D2[-1][::-1]
+        min_index = summarized.argmax() if self.is_similarity else summarized.argmin()
+        
+        if len(s1) == 1:
+            end_index = min_index+1
+            alignment1 = self.__backtracking__(B1[:,:end_index], s1, t1[:end_index])
+        else:
+            alignment1 = self.__align__(s[:delim], t[:min_index])
+
+        if len(s2) == 1:
+            end_index = len(t2)-min_index+1
+            alignment2 = self.__backtracking__(B2[:,:end_index], s2, t2[:end_index])
+            alignment2 = alignment2[0][::-1], alignment2[1][::-1]
+        else:
+            alignment2 = self.__align__(s[delim:], t[min_index:])
+
+        alignment = alignment1[0] + alignment2[0], alignment1[1] + alignment2[1]
+
+        return alignment
 
     def __generate_matrix__(self, s: str, t: str):
         n = len(s)
@@ -34,12 +91,12 @@ class NeedlemanWunsch:
 
         # Initialize first row and column
         for i in range(1, n+1):
-            D[i, 0] =  D[i-1, 0] + self.w[s[i-1]]['-']
-            B[i, 0] = self.Direction.UP
+            D[i, 0] =  D[i-1, 0] + self.w[s[i-1]]['-'] if self.type == self.AlignmentType.GLOBAL else 0
+            B[i, 0] = self.Direction.UP if self.type == self.AlignmentType.GLOBAL else self.Direction.NONE
 
         for j in range(1, m+1):
-            D[0, j] = D[0, j-1] + self.w['-'][t[j-1]]
-            B[0, j] = self.Direction.LEFT
+            D[0, j] = D[0, j-1] + self.w['-'][t[j-1]] if self.type == self.AlignmentType.GLOBAL else 0
+            B[0, j] = self.Direction.LEFT if self.type == self.AlignmentType.GLOBAL else self.Direction.NONE
 
         # Fill the matrices
         for i in range(1, n+1):
@@ -49,17 +106,20 @@ class NeedlemanWunsch:
                 left_score = D[i, j-1] + self.w['-'][t[j-1]]
                 diag_score = D[i-1, j-1] + self.w[s[i-1]][t[j-1]]
 
-                # Choose the minimum
-                min_score = min(left_score, up_score, diag_score)
+                comparator = max if self.is_similarity else min
 
-                D[i, j] = min_score
+                best_score = comparator(up_score, left_score, diag_score)
+
+                D[i, j] = best_score
 
                 # Set the backtracking matrix
-                if min_score == left_score:
+                if best_score < 0 and self.type == self.AlignmentType.LOCAL:
+                    B[i, j] = self.Direction.NONE
+                elif best_score == left_score:
                     B[i, j] = self.Direction.LEFT
-                elif min_score == diag_score:
+                elif best_score == diag_score:
                     B[i, j] = self.Direction.DIAG
-                elif min_score == up_score:
+                elif best_score == up_score:
                     B[i, j] = self.Direction.UP
 
         return D, B
@@ -120,11 +180,11 @@ class NeedlemanWunsch:
         t_aligned = ""
 
         while i > 0 or j > 0:
-            if B[i, j] == NeedlemanWunsch.Direction.LEFT:
+            if B[i, j] == Alignment.Direction.LEFT:
                 s_aligned = '-' + s_aligned
                 t_aligned = t[j-1] + t_aligned
                 j -= 1
-            elif B[i, j] == NeedlemanWunsch.Direction.UP:
+            elif B[i, j] == Alignment.Direction.UP:
                 s_aligned = s[i-1] + s_aligned
                 t_aligned = '-' + t_aligned
                 i -= 1
@@ -135,42 +195,3 @@ class NeedlemanWunsch:
                 j -= 1
 
         return s_aligned, t_aligned
-
-
-def build_weight_matrix(alphabet: str | Set[str], match: int, indel: int, substitution: int):
-    w = {
-        a: {b: match if a == b else substitution for b in alphabet} for a in alphabet
-    }
-
-    w['-'] = {a: indel for a in alphabet}
-
-    for a in alphabet:
-        w[a]['-'] = indel
-
-    return w
-
-def main(description: str, usedClass):
-    import argparse
-
-    parser = argparse.ArgumentParser(description=description)
-    parser.add_argument(type=str, dest="s", help='First sequence')
-    parser.add_argument(type=str, dest="t", help='Second sequence')
-
-    parser.add_argument('--match', type=int, default=0, help='Match score')
-    parser.add_argument('--indel', type=int, default=2, help='Indel score')
-    parser.add_argument('--substitution', type=int, default=3, help='Substitution score')
-
-    args = parser.parse_args()
-
-    s = args.s
-    t = args.t
-
-    alphabet = set(s + t)
-
-    w = build_weight_matrix(alphabet, args.match, args.indel, args.substitution)
-
-    nw = usedClass(s, t, w)
-    print(nw)
-
-if __name__ == "__main__":
-    main("Needleman-Wunsch algorithm", NeedlemanWunsch)

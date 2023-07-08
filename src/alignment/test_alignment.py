@@ -1,5 +1,4 @@
-from needleman_wunsch import NeedlemanWunsch, build_weight_matrix, main
-from hirschberg import Hirschberg
+from alignment.general_alignment import NeedlemanWunsch, SmithWaterman, build_weight_matrix
 import hashlib
 import pytest
 
@@ -17,7 +16,7 @@ def test_aligners():
         nw = NeedlemanWunsch(s, t, matrix)
         assert nw.alignment == expected
 
-        h = Hirschberg(s, t, matrix)
+        h = NeedlemanWunsch(s, t, matrix, hirschberg=True)
         assert h.alignment == expected
 
 def test_needleman():
@@ -30,8 +29,3 @@ def test_needleman():
     assert nw.D[-1, -1] == 9
 
     assert hashlib.sha256(str(nw).encode()).hexdigest() == "a4ca5d4fa77311f4f48ee10261a0abd993511f1eb0eccdd884450e6318ebac7f"
-
-def test_main():
-    for algorithm in [NeedlemanWunsch, Hirschberg]:
-        with pytest.raises(SystemExit):
-            main("Algorithm", algorithm)
