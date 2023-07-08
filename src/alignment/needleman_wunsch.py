@@ -2,12 +2,13 @@
 
 import numpy as np
 from typing import Dict, Set
-import pytest
+from enum import Enum
 
 class NeedlemanWunsch:
-    LEFT = 5
-    DIAG = 6
-    UP = 7
+    class Direction(Enum):
+        LEFT = 5
+        DIAG = 6
+        UP = 7
 
     def __init__(self, s: str, t: str, w: Dict[str, Dict[str, int]]) -> None:
         self.s = s
@@ -29,16 +30,16 @@ class NeedlemanWunsch:
         m = len(t)
 
         D = np.zeros((n+1, m+1), dtype=int) # Distance matrix
-        B = np.zeros((n+1, m+1), dtype=int) # Backtracking matrix
+        B = np.zeros((n+1, m+1), dtype=self.Direction) # Backtracking matrix
 
         # Initialize first row and column
         for i in range(1, n+1):
             D[i, 0] =  D[i-1, 0] + self.w[s[i-1]]['-']
-            B[i, 0] = self.UP
+            B[i, 0] = self.Direction.UP
 
         for j in range(1, m+1):
             D[0, j] = D[0, j-1] + self.w['-'][t[j-1]]
-            B[0, j] = self.LEFT
+            B[0, j] = self.Direction.LEFT
 
         # Fill the matrices
         for i in range(1, n+1):
@@ -55,11 +56,11 @@ class NeedlemanWunsch:
 
                 # Set the backtracking matrix
                 if min_score == left_score:
-                    B[i, j] = self.LEFT
+                    B[i, j] = self.Direction.LEFT
                 elif min_score == diag_score:
-                    B[i, j] = self.DIAG
+                    B[i, j] = self.Direction.DIAG
                 elif min_score == up_score:
-                    B[i, j] = self.UP
+                    B[i, j] = self.Direction.UP
 
         return D, B
 
@@ -90,13 +91,13 @@ class NeedlemanWunsch:
                     output += str(self.D[index_line, j]) + sep
 
                     if j < m:
-                        output += (arrow_left if self.B[index_line, j+1] == self.LEFT else "") + sep
+                        output += (arrow_left if self.B[index_line, j+1] == self.Direction.LEFT else "") + sep
             else:
                 output += self.s[index_line] + sep
 
                 for j in range(m+1):              
-                    output += (arrow_up if index_line < n and self.B[index_line+1, j] == self.UP else "") + sep
-                    output += (arrow_diag if index_line < n and j < m and self.B[index_line+1, j+1] == self.DIAG else "") + sep
+                    output += (arrow_up if index_line < n and self.B[index_line+1, j] == self.Direction.UP else "") + sep
+                    output += (arrow_diag if index_line < n and j < m and self.B[index_line+1, j+1] == self.Direction.DIAG else "") + sep
             
             output += '\n'
 
@@ -118,11 +119,11 @@ class NeedlemanWunsch:
         t_aligned = ""
 
         while i > 0 or j > 0:
-            if B[i, j] == self.LEFT:
+            if B[i, j] == self.Direction.LEFT:
                 s_aligned = '-' + s_aligned
                 t_aligned = t[j-1] + t_aligned
                 j -= 1
-            elif B[i, j] == self.UP:
+            elif B[i, j] == self.Direction.UP:
                 s_aligned = s[i-1] + s_aligned
                 t_aligned = '-' + t_aligned
                 i -= 1
