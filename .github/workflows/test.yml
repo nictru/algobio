@@ -27,5 +27,5 @@ jobs:
           ./setup.sh
 
       - name: Run tests with coverage
-        run: pytest --cov
+        run: pytest
 

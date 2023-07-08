@@ -32,7 +32,7 @@ def naive2(text: str, pattern: str) -> bool:
         
     return False
 
-if __name__ == "__main__":
+def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="Aho-Corasick algorithm")
@@ -46,3 +46,6 @@ if __name__ == "__main__":
 
     print("Naive2", end="\t")
     print("Found") if naive2(args.text, args.pattern) else print("Not found")
+
+if __name__ == "__main__":
+    main()

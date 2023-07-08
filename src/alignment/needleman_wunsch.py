@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from typing import Dict
+from typing import Dict, Set
+import pytest
 
 class NeedlemanWunsch:
     LEFT = 5
@@ -134,7 +135,7 @@ class NeedlemanWunsch:
         return s_aligned, t_aligned
 
 
-def build_weight_matrix(alphabet, match, indel, substitution):
+def build_weight_matrix(alphabet: str | Set[str], match: int, indel: int, substitution: int):
     w = {
         a: {b: match if a == b else substitution for b in alphabet} for a in alphabet
     }

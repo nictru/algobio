@@ -1,8 +1,9 @@
 from knuth_morris_pratt import __compute_shift_table_z__, __compute_shift_table_z_mathematical__, __compute_shift_table__, kmp
 from boyer_moore import boyer_moore_bc, boyer_moore_galil, boyer_moore_gs
-from naive import naive, naive2
+from naive import naive, naive2, main
 from borders import actual_border, real_borders, borders
 from z_boxes import z_boxes
+import pytest
 
 def test_shift_table_relations():
     words = ["abc", "bbababbaba"]
@@ -60,3 +61,7 @@ def test_z_boxes():
 
     for text, expected in cases:
         assert z_boxes(text) == expected
+
+def test_naive_main():
+    with pytest.raises(SystemExit):
+        main()
