@@ -41,6 +41,10 @@ def main():
 
     args = parser.parse_args()
 
+    if not args.text or not args.pattern:
+        parser.print_help()
+        exit(1)
+
     print("Naive", end="\t")
     print("Found") if naive(args.text, args.pattern) else print("Not found")
 
