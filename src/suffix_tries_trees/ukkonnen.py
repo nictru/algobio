@@ -127,11 +127,11 @@ class Tree:
         if reference.end - reference.start + 1 == 0:
             if any([self.resolve(edge).startswith(x) for edge in node.children.keys()]):
                 self.log("\tReference is empty, but there is an edge starting with x")
-                self.log(f"\tWe return True and {node.to_string(self)}")
+                self.log(f"\tReturning True and {node.to_string(self)}")
                 return True, node
             else:
                 self.log("\tReference is empty, and there is no edge starting with x")
-                self.log(f"\tWe return False and {node.to_string(self)}")
+                self.log(f"\tReturning False and {node.to_string(self)}")
                 return False, node
             
         else:
@@ -142,20 +142,20 @@ class Tree:
 
             target = node.children[edge] # s'
 
-            self.log("W: " + w)
+            self.log("\tW: " + w)
 
             if x == w[reference.end - reference.start + 1]:
-                self.log("\tx is the same as the first letter of the edge")
+                self.log("\tx is the same as the referenced letter of the edge")
                 self.log(f"\tWe return True and {node.to_string(self)}")
                 return True, node
             else:
-                self.log("\tx is not the same as the first letter of the edge, so we split the edge")
+                self.log("\tx is not the same as the referenced letter of the edge, so we split the edge")
                 r = Node(parent=node)
 
                 if not isinstance(edge, Reference):
                     raise Exception("Edge is not a reference")
                 
-                self.log(f"\tOriginal edges starting at {node.to_string(self)}: {node.children.keys()}")
+                self.log(f"\tOriginal edge(s) starting at {node.to_string(self)}: {node.children.keys()}")
                 self.log(f"\tRemoving edge {edge}")
                 node.children.pop(edge)
 
@@ -215,6 +215,7 @@ class Tree:
         done, r = self.test_and_split(s, Reference(k, reference.end), self.word[i-1])
 
         while not done:
+            self.log()
             self.log(f"Not done, creating new child for {r.to_string(self)}")
             m = Node(parent=r)
             r.children[Reference(i, MAX_INT)] = m

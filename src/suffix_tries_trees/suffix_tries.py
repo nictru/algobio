@@ -108,7 +108,7 @@ class Node:
         for depth in range(self.get_max_depth() + 1):
             for node in set(self.get_children(depth)):
                 if node.terminal:
-                    graph.add_node(pydot.Node(node.id, label=node.get_label(), shape="doublecircle"))
+                    graph.add_node(pydot.Node(node.id, label=node.get_label(), shape="double"))
                 else:
                     graph.add_node(pydot.Node(node.id, label=node.get_label()))
 
