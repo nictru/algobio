@@ -38,7 +38,9 @@ def compute_shift_table(pattern: str, verbose: bool = False):
     """
     m = len(pattern)
 
-    S: List[int] = [m] * m
+    # In the pseudocode, the array is created with m + 1 elements, but the last element is never used
+    # If someone finds a counterexample, please let me know
+    S: List[int] = [m] * m 
 
     # Part 1: Sigma <= j
     border2: List[int] = [-1, 0]
@@ -210,6 +212,8 @@ if __name__ == "__main__":
         algorithm = boyer_moore_galil
     elif args.algorithm == "bc":
         algorithm = boyer_moore_bc
+    else:
+        raise ValueError("Invalid algorithm")
     
     print("Found") if algorithm(args.text, args.pattern, args.verbose) else print("Not found")
 
