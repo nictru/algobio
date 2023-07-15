@@ -61,7 +61,7 @@ class Node:
         # Add fail links
         max_depth = max([len(pattern) for pattern in patterns])
 
-        for length in range(1, max_depth):
+        for length in range(1, max_depth+1):
             for node in root.get_children(length):
                 if node.parent is None:
                     raise Exception("Node has no parent")
@@ -157,6 +157,9 @@ def aho_corasick_patterns(text: str, patterns: List[str], path: str | None = Non
 
             node = node.fail
 
+        if letter not in node.children:
+            continue
+        
         # Investigate the corresponding child
         node = node.children[letter]
 
