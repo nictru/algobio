@@ -43,9 +43,7 @@ class Node:
         elif self.parent.parent is None:
             return "(epsilon)"
         else:
-            edges = [edge for edge in self.parent.children.keys() if self.parent.children[edge] == self]
-            parent_label = self.parent.get_label()
-            return (parent_label if parent_label != "(epsilon)" else "") + (edges[0] if len(edges) == 1 else f"({'|'.join(edges)})")
+            return self.id
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -79,7 +77,7 @@ class Node:
             print("letter:", letter)
 
             while not (letter in curr_node.children):
-                new_node = Node(id=curr_node.id + letter, parent=curr_node)
+                new_node = Node(id=(curr_node.id if curr_node.id != "root" else "") + letter, parent=curr_node)
                 print("new_node:", new_node.id)
                 curr_node.children[letter] = new_node
 
