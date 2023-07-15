@@ -242,11 +242,16 @@ class Tree:
     def save(self, filename: str) -> None:
         graph = pydot.Dot(graph_type="digraph")
 
+        graph.add_node(pydot.Node("0", label="virtual_root"))
+
         def add_node(node: Node) -> None:
             graph.add_node(pydot.Node(str(node.id), label=node.get_label(self)))
 
+            if node.suffix_link:
+                graph.add_edge(pydot.Edge(str(node.id), str(node.suffix_link.id), style="dashed"))
+
             for edge, child in node.children.items():
-                graph.add_edge(pydot.Edge(str(node.id), str(child.id), label=str(edge)))
+                graph.add_edge(pydot.Edge(str(node.id), str(child.id), label=str(edge) + "\n" + str(self.resolve(edge))))
                 add_node(child)
 
         add_node(self.root)
