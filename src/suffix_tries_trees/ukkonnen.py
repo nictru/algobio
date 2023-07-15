@@ -228,7 +228,7 @@ class Tree:
             if not s.suffix_link:
                 raise Exception("Suffix link is not set")
             self.log(f"Following suffix link of {s.to_string(self)} to {s.suffix_link.to_string(self)}")
-            s, k = self.canonize(s.suffix_link, Reference(reference.start, reference.end))
+            s, k = self.canonize(s.suffix_link, Reference(k, reference.end))
             done, r = self.test_and_split(s, Reference(k, reference.end), self.word[i-1])
 
         if old_r is not self.root:

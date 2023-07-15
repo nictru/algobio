@@ -3,4 +3,4 @@ from ukkonnen import Tree
 def test_tree():
     tree = Tree("ababc")
 
-    assert tree.root.children["c"].is_terminal()
+    assert "c" in [child.get_label(tree) for child in tree.root.children.values()]
