@@ -91,13 +91,13 @@ def __kmp_general__(text: str, pattern: str, shift_table_method: Callable[[str],
             
         log(f"Incrementing i by {j - shift_table[j]}", verbose)
         i += j - shift_table[j]
-        j = max(0, shift_table[j])
 
         if shift_table[j] > 0:
             log(f"Setting j to shift_table[{j}]={shift_table[j]}", verbose)
             j = shift_table[j]
         else:
             log(f"Setting j to 0 because shift_table[{j}] = {shift_table[j]} <= 0", verbose)
+            j = 0
 
     return False
 
