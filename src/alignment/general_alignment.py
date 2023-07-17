@@ -84,14 +84,14 @@ class Alignment:
             end_index = min_index+1
             alignment1 = self.__backtracking__(D1[:,:end_index], B1[:,:end_index], s1, t1[:end_index])
         else:
-            alignment1 = self.__align__(s[:delim], t[:min_index])
+            alignment1 = self.__align_hirschberg__(s[:delim], t[:min_index])
 
         if len(s2) == 1:
             end_index = len(t2)-min_index+1
             alignment2 = self.__backtracking__(D2[:,:end_index], B2[:,:end_index], s2, t2[:end_index])
             alignment2 = alignment2[0][::-1], alignment2[1][::-1]
         else:
-            alignment2 = self.__align__(s[delim:], t[min_index:])
+            alignment2 = self.__align_hirschberg__(s[delim:], t[min_index:])
 
         alignment = alignment1[0] + alignment2[0], alignment1[1] + alignment2[1]
 
