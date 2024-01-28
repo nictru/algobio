@@ -2,3 +2,4 @@ pydot
 pytest
 pytest-cov
 numpy
+black

@@ -29,3 +29,6 @@ jobs:
       - name: Run tests with coverage
         run: pytest
 
+      - name: Check code style with black
+        run: black --check .
+
