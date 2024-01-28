@@ -1,5 +1,6 @@
 from ukkonnen import Tree
 
+
 def test_tree():
     tree = Tree("ababc")
 

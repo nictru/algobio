@@ -1,6 +1,12 @@
-from alignment_algorithms import NeedlemanWunsch, SmithWaterman, SemiGlobal, build_weight_matrix
+from alignment_algorithms import (
+    NeedlemanWunsch,
+    SmithWaterman,
+    SemiGlobal,
+    build_weight_matrix,
+)
 import hashlib
 import pytest
+
 
 def test_aligners():
     matrix = build_weight_matrix("ACGT", 0, 2, 3)
@@ -19,6 +25,7 @@ def test_aligners():
         h = NeedlemanWunsch(s, t, matrix, hirschberg=True)
         assert h.alignment == expected
 
+
 def test_needleman():
     matrix = build_weight_matrix("ACGT", 0, 2, 3)
 
@@ -28,7 +35,11 @@ def test_needleman():
 
     assert nw.D[-1, -1] == 9
 
-    assert hashlib.sha256(str(nw).encode()).hexdigest() == "0c03e38e4d5d99d653b64ad7de4a9fd1e4cc5abbe4ffb01e16f52957ae473908"
+    assert (
+        hashlib.sha256(str(nw).encode()).hexdigest()
+        == "0c03e38e4d5d99d653b64ad7de4a9fd1e4cc5abbe4ffb01e16f52957ae473908"
+    )
+
 
 def test_smith_waterman():
     matrix = build_weight_matrix("ACGT", 3, -2, -3)
@@ -38,6 +49,7 @@ def test_smith_waterman():
 
     with pytest.raises(ValueError):
         SmithWaterman("ACGATTATTT", "TAGTAATCG", matrix, True, True)
+
 
 def test_semi_global():
     with pytest.raises(UserWarning):

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+
 def naive(text: str, pattern: str) -> bool:
     """
     Naive string search algorithm
@@ -12,8 +13,9 @@ def naive(text: str, pattern: str) -> bool:
             j += 1
         if j == m:
             return True
- 
+
     return False
+
 
 def naive2(text: str, pattern: str) -> bool:
     """
@@ -29,8 +31,9 @@ def naive2(text: str, pattern: str) -> bool:
             j -= 1
         if j == -1:
             return True
-        
+
     return False
+
 
 def main():
     import argparse
@@ -50,6 +53,7 @@ def main():
 
     print("Naive2", end="\t")
     print("Found") if naive2(args.text, args.pattern) else print("Not found")
+
 
 if __name__ == "__main__":
     main()

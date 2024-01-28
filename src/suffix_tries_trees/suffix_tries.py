@@ -4,11 +4,12 @@ from dataclasses import dataclass
 from typing import List, Dict
 import pydot
 
+
 @dataclass
 class Node:
     TERMINAL = "$"
 
-    def __init__(self, id: str = "root", parent = None):
+    def __init__(self, id: str = "root", parent=None):
         self.parent: "Node" | None = parent
         self.id: str = id
 
@@ -36,7 +37,7 @@ class Node:
             return 0
         else:
             return self.parent.get_level() + 1
-        
+
     def get_label(self) -> str:
         if self.parent is None:
             return "(virtual root)"
@@ -77,7 +78,10 @@ class Node:
             print("letter:", letter)
 
             while not (letter in curr_node.children):
-                new_node = Node(id=(curr_node.id if curr_node.id != "root" else "") + letter, parent=curr_node)
+                new_node = Node(
+                    id=(curr_node.id if curr_node.id != "root" else "") + letter,
+                    parent=curr_node,
+                )
                 print("new_node:", new_node.id)
                 curr_node.children[letter] = new_node
 
@@ -91,11 +95,11 @@ class Node:
                     longest_suffix = new_node
                 else:
                     prev_node.suffix_link = new_node
-                
+
                 prev_node = new_node
                 assert curr_node.suffix_link is not None
                 curr_node = curr_node.suffix_link
-                
+
             prev_node.suffix_link = curr_node.children[letter]
 
         return meta_root
@@ -106,27 +110,42 @@ class Node:
         for depth in range(self.get_max_depth() + 1):
             for node in set(self.get_children(depth)):
                 if node.terminal:
-                    graph.add_node(pydot.Node(node.id, label=node.get_label(), shape="double"))
+                    graph.add_node(
+                        pydot.Node(node.id, label=node.get_label(), shape="double")
+                    )
                 else:
                     graph.add_node(pydot.Node(node.id, label=node.get_label()))
 
                 if node.suffix_link is not None:
-                    graph.add_edge(pydot.Edge(node.id, node.suffix_link.id, style="dashed"))
+                    graph.add_edge(
+                        pydot.Edge(node.id, node.suffix_link.id, style="dashed")
+                    )
 
                 for investigated in set(node.children.values()):
-                    letters = [letter for letter, child in node.children.items() if child is investigated]
+                    letters = [
+                        letter
+                        for letter, child in node.children.items()
+                        if child is investigated
+                    ]
                     letters.sort()
 
-                    graph.add_edge(pydot.Edge(node.id, investigated.id, label=", ".join(letters)))
+                    graph.add_edge(
+                        pydot.Edge(node.id, investigated.id, label=", ".join(letters))
+                    )
 
         graph.write_png(path)
+
 
 if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Suffix trie builder")
-    parser.add_argument("-w", "--word", default="abbaba", type=str, help="Word to build suffix trie for")
-    parser.add_argument("-o", "--output", type=str, help="Output file name", default="trie.png")
+    parser.add_argument(
+        "-w", "--word", default="abbaba", type=str, help="Word to build suffix trie for"
+    )
+    parser.add_argument(
+        "-o", "--output", type=str, help="Output file name", default="trie.png"
+    )
 
     args = parser.parse_args()
 

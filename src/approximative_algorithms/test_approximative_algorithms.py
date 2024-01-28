@@ -1,6 +1,7 @@
 from knapsack import knapsack
 import pytest
 
+
 def test_knapsack():
     items = [(3, 1), (4, 2), (2, 3)]
     capacity = 5

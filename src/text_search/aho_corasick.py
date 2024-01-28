@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import List, Dict, Tuple
 import pydot
 
+
 @dataclass
 class Node:
     def __init__(self, id: str = "root", parent: Tuple["Node", str] | None = None):
@@ -61,24 +62,28 @@ class Node:
         # Add fail links
         max_depth = max([len(pattern) for pattern in patterns])
 
-        for length in range(1, max_depth+1):
+        for length in range(1, max_depth + 1):
             for node in root.get_children(length):
                 if node.parent is None:
                     raise Exception("Node has no parent")
-                
+
                 # Find out how this node can be reached
                 parent, parent_char = node.parent
 
                 # Find the highest-level node that is in a failure-linkage chain starting at the parent
                 # and has a child with the desired character
                 w = parent.fail
-                while w is not None and w is not root and w.children.get(parent_char, None) is None:
+                while (
+                    w is not None
+                    and w is not root
+                    and w.children.get(parent_char, None) is None
+                ):
                     w = w.fail
 
                 # If such a node exists, set the failure link to the child of that node with the desired character
                 if w is not None and w.children.get(parent_char, None) is not None:
                     node.fail = w.children[parent_char]
-                
+
                 # Otherwise, set the failure link to the root
                 else:
                     node.fail = root
@@ -97,9 +102,13 @@ class Node:
             for node in self.get_children(depth):
                 if node.hit:
                     if node.leaf:
-                        graph.add_node(pydot.Node(node.id, style="filled", fillcolor="green"))
+                        graph.add_node(
+                            pydot.Node(node.id, style="filled", fillcolor="green")
+                        )
                     else:
-                        graph.add_node(pydot.Node(node.id, style="filled", fillcolor="red"))
+                        graph.add_node(
+                            pydot.Node(node.id, style="filled", fillcolor="red")
+                        )
                 else:
                     graph.add_node(pydot.Node(node.id))
 
@@ -107,15 +116,19 @@ class Node:
                     graph.add_edge(pydot.Edge(node.id, node.fail.id, style="dashed"))
 
                 if node.hit_link is not None and node is not node.hit_link:
-                    graph.add_edge(pydot.Edge(node.id, node.hit_link.id, style="dotted"))
-
+                    graph.add_edge(
+                        pydot.Edge(node.id, node.hit_link.id, style="dotted")
+                    )
 
                 for char, child in node.children.items():
                     graph.add_edge(pydot.Edge(node.id, child.id, label=char))
 
         graph.write_png(path)
 
-def aho_corasick_binary(text: str, patterns: List[str], path: str | None = None) -> bool:
+
+def aho_corasick_binary(
+    text: str, patterns: List[str], path: str | None = None
+) -> bool:
     root = Node.build(patterns)
 
     root.tree(path) if path is not None else root.tree()
@@ -128,7 +141,7 @@ def aho_corasick_binary(text: str, patterns: List[str], path: str | None = None)
             node = checked
             if node.hit:
                 return True
-            
+
         if node is None:
             raise Exception("Node is None")
 
@@ -140,7 +153,10 @@ def aho_corasick_binary(text: str, patterns: List[str], path: str | None = None)
 
     return False
 
-def aho_corasick_patterns(text: str, patterns: List[str], path: str | None = None) -> List[str]:
+
+def aho_corasick_patterns(
+    text: str, patterns: List[str], path: str | None = None
+) -> List[str]:
     root = Node.build(patterns)
 
     root.tree(path) if path is not None else root.tree()
@@ -159,13 +175,12 @@ def aho_corasick_patterns(text: str, patterns: List[str], path: str | None = Non
 
         if letter not in node.children:
             continue
-        
+
         # Investigate the corresponding child
         node = node.children[letter]
 
         if node.hit:
             result.append(node.id)
-    
 
     return result
 
@@ -175,7 +190,13 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Aho-Corasick algorithm")
     parser.add_argument("--text", default="cbcabcbca", type=str, help="Text to search")
-    parser.add_argument("--patterns", default=["abcbca", "bcbcb", "c", "cbc", "cbcc"], type=str, nargs="+", help="Patterns to search for")
+    parser.add_argument(
+        "--patterns",
+        default=["abcbca", "bcbcb", "c", "cbc", "cbcc"],
+        type=str,
+        nargs="+",
+        help="Patterns to search for",
+    )
     parser.add_argument("--path", type=str, help="Path to save tree image")
 
     args = parser.parse_args()

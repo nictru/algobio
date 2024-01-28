@@ -4,16 +4,18 @@ from typing import List, Set
 from borders import actual_border
 from collections import defaultdict
 
+
 def log(msg: str, verbose: bool = False):
     if verbose:
         print(msg)
+
 
 def compute_bad_character_table(pattern: str, alphabet: Set[str] | None = None):
     """
     Compute the bad character table for the Boyer-Moore algorithm.
     """
     m = len(pattern)
-    
+
     if alphabet is None:
         alphabet = set(pattern)
 
@@ -24,13 +26,17 @@ def compute_bad_character_table(pattern: str, alphabet: Set[str] | None = None):
 
     return bc
 
-def compute_extended_bad_character_table(pattern: str, alphabet: Set[str] | None = None):
+
+def compute_extended_bad_character_table(
+    pattern: str, alphabet: Set[str] | None = None
+):
     """
     Compute the extended bad character table for the Boyer-Moore algorithm.
     """
     m = len(pattern)
 
     return [compute_bad_character_table(pattern[:j], alphabet) for j in range(m + 1)]
+
 
 def compute_shift_table(pattern: str, verbose: bool = False):
     """
@@ -40,7 +46,7 @@ def compute_shift_table(pattern: str, verbose: bool = False):
 
     # In the pseudocode, the array is created with m + 1 elements, but the last element is never used
     # If someone finds a counterexample, please let me know
-    S: List[int] = [m] * m 
+    S: List[int] = [m] * m
 
     # Part 1: Sigma <= j
     border2: List[int] = [-1, 0]
@@ -49,19 +55,25 @@ def compute_shift_table(pattern: str, verbose: bool = False):
     log("Part 1", verbose)
     # For all suffix start positions
     for j in range(2, m + 1):
-        while i >= 0 and pattern[m-i-1] != pattern[m-j]:
+        while i >= 0 and pattern[m - i - 1] != pattern[m - j]:
             sigma = j - i - 1
             log(f"Iteration: i = {i}, j = {j}, sigma = {sigma}", verbose)
 
-            if sigma < S[m-i-1]:
-                log(f"Set S[{m-i-1}] to {sigma} (because {sigma} < {S[m-i-1]}))", verbose)
-                S[m-i-1] = sigma
+            if sigma < S[m - i - 1]:
+                log(
+                    f"Set S[{m-i-1}] to {sigma} (because {sigma} < {S[m-i-1]}))",
+                    verbose,
+                )
+                S[m - i - 1] = sigma
             else:
-                log(f"Did not set S[{m-i-1}] to {sigma} (because {sigma} >= {S[m-i-1]}))", verbose)
+                log(
+                    f"Did not set S[{m-i-1}] to {sigma} (because {sigma} >= {S[m-i-1]}))",
+                    verbose,
+                )
 
             log(f"Set i to border2[{i}] = {border2[i]}")
             i = border2[i]
-        
+
         if i < 0:
             log("Left while loop because i < 0", verbose)
         else:
@@ -81,7 +93,7 @@ def compute_shift_table(pattern: str, verbose: bool = False):
     j = 0
     i = border2[m]
     while i >= 0:
-        sigma = m-i
+        sigma = m - i
         log(f"Iteration: i = {i}, j = {j}, sigma = {sigma}", verbose)
 
         while j < sigma:
@@ -89,14 +101,18 @@ def compute_shift_table(pattern: str, verbose: bool = False):
                 log(f"Set S[{j}] to {sigma} (because {sigma} < {S[j]}))", verbose)
                 S[j] = sigma
             else:
-                log(f"Did not set S[{j}] to {sigma} (because {sigma} >= {S[j]}))", verbose)
+                log(
+                    f"Did not set S[{j}] to {sigma} (because {sigma} >= {S[j]}))",
+                    verbose,
+                )
             j += 1
-        
+
         i = border2[i]
 
     log("Finished calculating shift table", verbose)
 
     return S
+
 
 def boyer_moore_gs(text: str, pattern: str, verbose: bool = False) -> bool:
     """
@@ -116,7 +132,7 @@ def boyer_moore_gs(text: str, pattern: str, verbose: bool = False) -> bool:
 
     while i <= n - m:
         log(f"Outer loop, i = {i}", verbose)
-        while text[i+j] == pattern[j]:
+        while text[i + j] == pattern[j]:
             log(f"Inner loop, j = {j}", verbose)
             if j == 0:
                 return True
@@ -125,6 +141,7 @@ def boyer_moore_gs(text: str, pattern: str, verbose: bool = False) -> bool:
         j = m - 1
 
     return False
+
 
 def boyer_moore_galil(text: str, pattern: str, verbose: bool = False) -> bool:
     """
@@ -144,11 +161,13 @@ def boyer_moore_galil(text: str, pattern: str, verbose: bool = False) -> bool:
     start = 0
     Border = len(actual_border(pattern))
 
-    log(f"Initial values: i = {i}, j = {j}, start = {start}, Border = {Border}", verbose)
+    log(
+        f"Initial values: i = {i}, j = {j}, start = {start}, Border = {Border}", verbose
+    )
 
     while i <= n - m:
         log(f"Outer loop, i = {i}", verbose)
-        while text[i+j] == pattern[j]:
+        while text[i + j] == pattern[j]:
             log(f"Inner loop, j = {j}", verbose)
             if j == start:
                 return True
@@ -166,6 +185,7 @@ def boyer_moore_galil(text: str, pattern: str, verbose: bool = False) -> bool:
 
     return False
 
+
 def boyer_moore_bc(text: str, pattern: str, verbose: bool = False) -> bool:
     """
     Search for a pattern in a text using the Boyer-Moore algorithm with bad character rule.
@@ -175,7 +195,7 @@ def boyer_moore_bc(text: str, pattern: str, verbose: bool = False) -> bool:
     alphabet = set(pattern) | set(text)
 
     i = 0
-    j = m-1
+    j = m - 1
 
     log("Computing bad character table", verbose)
     ebc = compute_extended_bad_character_table(pattern)
@@ -183,29 +203,43 @@ def boyer_moore_bc(text: str, pattern: str, verbose: bool = False) -> bool:
 
     while i <= n - m:
         log(f"Outer loop, i = {i}", verbose)
-        while text[i+j] == pattern[j]:
+        while text[i + j] == pattern[j]:
             log(f"Inner loop, j = {j}", verbose)
             if j == 0:
                 return True
             j -= 1
-        
-        log(f"Incrementing i by {j - ebc[j][text[i+j]]} (because ebc[{j}][{text[i+j]}] = {ebc[j][text[i+j]]} and j = {j})", verbose)
-        i += j - ebc[j][text[i+j]]
+
+        log(
+            f"Incrementing i by {j - ebc[j][text[i+j]]} (because ebc[{j}][{text[i+j]}] = {ebc[j][text[i+j]]} and j = {j})",
+            verbose,
+        )
+        i += j - ebc[j][text[i + j]]
         j = m - 1
 
     return False
 
+
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Search for a pattern in a text using the Boyer-Moore algorithm.")
+    parser = argparse.ArgumentParser(
+        description="Search for a pattern in a text using the Boyer-Moore algorithm."
+    )
     parser.add_argument("text", help="The text to search in")
     parser.add_argument("pattern", help="The pattern to search for")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Print debug output")
-    parser.add_argument("-a", "--algorithm", choices=["gs", "galil", "bc"], default="gs", help="The algorithm to use")
+    parser.add_argument(
+        "-v", "--verbose", action="store_true", help="Print debug output"
+    )
+    parser.add_argument(
+        "-a",
+        "--algorithm",
+        choices=["gs", "galil", "bc"],
+        default="gs",
+        help="The algorithm to use",
+    )
 
     args = parser.parse_args()
-    
+
     if args.algorithm == "gs":
         algorithm = boyer_moore_gs
     elif args.algorithm == "galil":
@@ -214,6 +248,7 @@ if __name__ == "__main__":
         algorithm = boyer_moore_bc
     else:
         raise ValueError("Invalid algorithm")
-    
-    print("Found") if algorithm(args.text, args.pattern, args.verbose) else print("Not found")
 
+    print("Found") if algorithm(args.text, args.pattern, args.verbose) else print(
+        "Not found"
+    )

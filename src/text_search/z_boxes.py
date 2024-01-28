@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+
 def log(msg: str = "", verbose: bool = False):
     if verbose:
         print(msg)
+
 
 def z_boxes(pattern: str, verbose: bool = False):
     """
@@ -31,8 +33,11 @@ def z_boxes(pattern: str, verbose: bool = False):
             if i >= m:
                 log(f"Left inner loop: i = {i} >= m = {m}", verbose)
             else:
-                log(f"Left inner loop: pattern[i] = {pattern[i]} != pattern[i - k] = {pattern[i - k]}", verbose)
-            
+                log(
+                    f"Left inner loop: pattern[i] = {pattern[i]} != pattern[i - k] = {pattern[i - k]}",
+                    verbose,
+                )
+
             log(f"Set Z[{k}] to {i - k}", verbose)
             Z[k] = i - k
 
@@ -51,11 +56,14 @@ def z_boxes(pattern: str, verbose: bool = False):
                 while i < m and pattern[i] == pattern[i - k]:
                     log(f"Inner loop: i = {i}", verbose)
                     i += 1
-                
+
                 if i >= m:
                     log(f"Left inner loop: i = {i} >= m = {m}", verbose)
                 else:
-                    log(f"Left inner loop: pattern[i] = {pattern[i]} != pattern[i - k] = {pattern[i - k]}", verbose)
+                    log(
+                        f"Left inner loop: pattern[i] = {pattern[i]} != pattern[i - k] = {pattern[i - k]}",
+                        verbose,
+                    )
 
                 log(f"Set Z[{k}] to {i - k}", verbose)
                 Z[k] = i - k
@@ -66,6 +74,7 @@ def z_boxes(pattern: str, verbose: bool = False):
                     r = i - 1
 
     return Z
+
 
 if __name__ == "__main__":
     import argparse
