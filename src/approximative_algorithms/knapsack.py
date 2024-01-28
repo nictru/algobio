@@ -19,10 +19,13 @@ def knapsack(items: List[Tuple[int, int]], capacity: int):
 
     # Create matrix
     S = np.zeros((max_k + 1, max_p + 1))
+    PI = np.ndarray((max_k + 1, max_p + 1), dtype=set)
 
     for k in range(max_k + 1):
         for p in range(max_p + 1):
             if k == 0:
+                PI[k, p] = set()
+
                 if p == 0:
                     S[k, p] = 0
                 else:
@@ -36,15 +39,17 @@ def knapsack(items: List[Tuple[int, int]], capacity: int):
                         S[k - 1, p - p_k] + s_k <= capacity and \
                         S[k - 1, p - p_k] + s_k <= S[k - 1, p]:
                     S[k, p] = S[k - 1, p - p_k] + s_k
+                    PI[k, p] = PI[k - 1, p - p_k].union({k - 1})
                 else:
                     S[k, p] = S[k - 1, p]
-    
+                    PI[k, p] = PI[k - 1, p]
+
     # Find max position that is smaller or equal to capacity
     p = max_p
     while S[max_k, p] > capacity:
         p -= 1
     
-    return p, S[max_k, p]
+    return p, S[max_k, p], PI[max_k, p]
 
 if __name__ == '__main__':
     import argparse
@@ -57,7 +62,8 @@ if __name__ == '__main__':
     items = [(int(w), int(p)) for w, p in [i.split(':') for i in args.items.split(';')]]
     capacity = args.capacity
 
-    max_value, weight = knapsack(items, capacity)
+    max_value, weight, items = knapsack(items, capacity)
 
     print("Max value:", max_value)
     print("Weight:", weight)
+    print("Items:", items)
