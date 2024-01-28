@@ -136,6 +136,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    print("Found") if kmp_z(args.text, args.pattern, args.z, args.verbose) else print(
-        "Not found"
+    (
+        print("Found")
+        if kmp_z(args.text, args.pattern, args.z, args.verbose)
+        else print("Not found")
     )

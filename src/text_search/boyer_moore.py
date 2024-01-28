@@ -249,6 +249,8 @@ if __name__ == "__main__":
     else:
         raise ValueError("Invalid algorithm")
 
-    print("Found") if algorithm(args.text, args.pattern, args.verbose) else print(
-        "Not found"
+    (
+        print("Found")
+        if algorithm(args.text, args.pattern, args.verbose)
+        else print("Not found")
     )
