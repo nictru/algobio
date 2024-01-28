@@ -1,5 +1,5 @@
 [run]
-omit = test_*.py
+omit = /usr/local/*
 
 [report]
 fail_under = 85
